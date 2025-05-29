@@ -1,0 +1,26 @@
+:root {
+  --map-tiles-filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+.map-tiles-dark {
+  filter:var(--map-tiles-filter, none);
+}
+
+.leaflet-control-attribution {
+  background: var(--card)!important;
+  color: var(--primary)!important;
+
+  svg {
+    display: none!important;
+  }
+}
+
+.leaflet-top.leaflet-left {
+  width: 100%;
+
+  .leaflet-control {
+    margin: 0;
+    padding: .5rem;
+    width: 100%;
+  }
+}
