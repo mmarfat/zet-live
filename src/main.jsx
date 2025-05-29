@@ -6,7 +6,7 @@ import App from './App.jsx'
 import './i18n';
 import '@fontsource-variable/inter';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
-import { ThemeProvider } from '@/components/theme/theme-provider';
+import { ThemeProvider } from '@/theme/theme-provider';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
