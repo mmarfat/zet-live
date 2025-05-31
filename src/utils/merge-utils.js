@@ -6,7 +6,7 @@ export function getBaseId(idStr) {
 
 export async function fetchAndParseRoutesCSV() {
   try {
-    const response = await fetch('/data/meta/routes.txt');
+    const response = await fetch(`${import.meta.env.BASE_URL}data/meta/routes.txt`);
     if (!response.ok) {
       throw new Error('Failed to fetch CSV file');
     }
