@@ -15,12 +15,3 @@
   }
 }
 
-.leaflet-top.leaflet-left {
-  width: 100%;
-
-  .leaflet-control {
-    margin: 0;
-    padding: .5rem;
-    width: 100%;
-  }
-}
