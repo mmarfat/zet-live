@@ -4,7 +4,7 @@ const isProd = import.meta.env.PROD;
 
 export async function fetchGTFS() {
   const url = isProd
-    ? "https://www.zet.hr/gtfs-rt-protobuf"
+    ? "https://v0-simple-serverless-proxy.vercel.app/api/gtfs-proxy"
     : "/gtfs"; // Vite proxy in dev
 
   try {
