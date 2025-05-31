@@ -3,6 +3,8 @@
     "search": "Pretražite..."
   },
   "search": {
-    "previousSearches": "Prethodna pretraživanja"
-  }
+    "previousSearches": "Prethodna pretraživanja",
+    "searchResults": "Rezultati pretrage"
+  },
+  "inactiveapp": "Aplikacija je neaktivna. Interaktirajte sa stranicom kako bi nastavili primati nove informacije."
 }

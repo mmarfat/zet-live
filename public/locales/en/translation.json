@@ -3,6 +3,8 @@
     "search": "Search..."
   },
   "search": {
-    "previousSearches": "Previous searches"
-  }
+    "previousSearches": "Previous searches",
+    "searchResults": "Search results"
+  },
+  "inactiveapp": "The app is inactive. Please interact with the page to resume updates."
 }
