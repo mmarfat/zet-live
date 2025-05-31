@@ -10,6 +10,9 @@ i18next
   .init({
     fallbackLng: 'en',
     debug: import.meta.env.MODE === 'development',
+    backend: {
+      loadPath: `${import.meta.env.BASE_URL}locales/{{lng}}/translation.json`,
+    },
     interpolation: {
       escapeValue: false,
     },
