@@ -1,93 +1,115 @@
-import { useState, useEffect } from 'react';
-import { useMap } from 'react-leaflet';
-import { Button } from '@/components/ui/button'; // Adjust the import path based on your project structure
-import CustomControl from '../CustomControl'; // Ensure this path points to your CustomControl component
-import { Clock, FilterIcon, SearchIcon } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { SearchIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
+import { useFileData } from '@/contexts/FileDataContext/FileDataContext';
+import Fuse from 'fuse.js';
+import TypeAvatar from './TypeAvatar';
 
-const CustomSearchControl = () => {
-  const map = useMap();
+const CustomSearchControl = ({ onSelect }) => {
+  
+  // States, refs, hooks...
   const { t } = useTranslation();
-
+  const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("")
-  const [isOpen, setIsOpen] = useState(false)
-  const [previousSearches, setPreviousSearches] = useState([
-    { id: "11", type: "tram", name: "11", route: "Črnomerec - Dubec" },
-    { id: "102", type: "bus", name: "102", route: "Savski most - Utrine" },
-    { id: "13", type: "tram", name: "13", route: "Žitnjak - Kvaternikov trg" },
-  ])
+  const [searchResults, setSearchResults] = useState([]);
+  const { fileData } = useFileData();
 
-
+  // Handlers
   const handleInputChange = (e) => {
-    setSearchValue(e.target.value);
+    const value = e.target.value;
+    setSearchValue(value);
+    setSearchResults(searchWithFallback(value));
+    setIsOpen(Boolean(value))
   };
 
-  return (
-    <CustomControl position="topleft">
-      <div className="flex flex-1 gap-2 max-w-full sm:max-w-lg w-full transition-all duration-300">
-        <div className="max-w-full sm:max-w-lg w-full">
-          <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="text"
-              name="search"
-              autoComplete="off"
-              value={searchValue}
-              onFocus={() => setIsOpen(true)}
-              onBlur={() => setIsOpen(false)}
-              onChange={handleInputChange}
-              placeholder={t("ui.search")}
-              className="rounded-2xl pl-10 w-full h-12 shadow-xl/20"
-            />
-          </div>
-          {isOpen && (previousSearches.length > 0 || searchValue) && (
-            <Card className="relative mt-2 w-full max-h-80 overflow-y-auto pt-0 pb-0">
-              {previousSearches.length > 0 && (
-                <div>
-                  <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    {t("search.previousSearches")}
-                  </div>
-                  {
-                  previousSearches.slice(0, 5).map((route) => (
-                    <button
-                      key={`prev-${route.id}`}
-                      //onClick={() => handleSearchSelect(route)}
-                      className="w-full text-left px-3 py-2 hover:bg-muted transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`px-2 py-1 rounded text-xs font-medium ${
-                            route.type === "bus"
-                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                              : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          }`}
-                        >
-                          {route.type === "bus" ? "BUS" : "TRAM"}
-                        </div>
-                        <div>
-                          <div className="font-medium">{route.name}</div>
-                          <div className="text-sm text-muted-foreground">{route.route}</div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </Card>
-          )}
-        </div>
-        <Button
-          size="icon"
-          className="rounded-2xl h-12 w-12 shadow-xl/20"
-        >
-          <FilterIcon />
-        </Button>
+  const handleSearchSelect = (item) => {
+    setSearchValue(`${item?.vehicle?.routeLongName ?? ''}, ${item?.tripUpdate?.trip?.routeId ?? ''}`);
+    setIsOpen(false);
+    onSelect(item.id);
+  }
+  
+  // Utils
+  const fuse = useMemo(() => {
+    if (!fileData) return null;
+
+    const filteredEntries = fileData.filter(
+      (entry) => entry?.vehicle?.position && entry?.tripUpdate?.trip?.routeId
+    );
+
+    return new Fuse(filteredEntries, {
+      keys: ['tripUpdate.trip.routeId', 'vehicle.routeLongName'],
+      threshold: 1,
+      ignoreLocation: true
+    });
+  }, [fileData]);
+
+  const searchWithFallback = (query, limit = 10) => {
+    if (!fuse || !query) return [];
+    
+    const results = fuse.search(query).slice(0, limit).map(r => r.item);
+
+    return results;
+  };
+
+  const renderSearchItem = (item) => (
+    <div className="flex items-center gap-3">
+      <TypeAvatar type={item?.vehicle?.routeType} />
+      <div>
+        <div className="font-medium">{item?.tripUpdate?.trip?.routeId || item?.vehicle?.trip?.routeId}</div>
+        <div className="text-sm text-muted-foreground">{item?.vehicle?.routeLongName}</div>
       </div>
-    </CustomControl>
+    </div>
+  )
+
+  return (
+    <div className="pt-2.5 pointer-events-auto flex flex-col w-full sm:w-md transition-[width] ease-in-out duration-300 touch-manipulation">
+      <div className="pl-2.5 pr-2.5 flex flex-1 w-full gap-2 sm:w-md">
+        <div className="relative flex-1">
+          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            type="text"
+            name="search"
+            autoComplete="off"
+            value={searchValue}
+            onFocus={() => setIsOpen(Boolean(searchValue))}
+            onBlur={() => setIsOpen(false)}
+            onChange={handleInputChange}
+            placeholder={t("ui.search")}
+            className="rounded-2xl pl-10 w-full h-12 shadow-xl/20"
+          />
+        </div>
+      </div>
+      {isOpen && (
+        <div className="pl-2.5 pr-2.5 flex flex-1 w-full sm:w-md">
+          <Card
+            className="mt-2 w-full max-h-80 pt-0 pb-0 touch-manipulation"
+            onWheel={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col overflow-y-hidden">
+              <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b rounded-t-md bg-card sticky">
+                {t("search.searchResults")}
+              </div>
+
+              <div className="overflow-y-auto">
+                {searchResults.map((item) => (
+                  <button
+                    key={item?.id}
+                    onMouseDown={() => handleSearchSelect(item)}
+                    className="w-full text-left px-3 py-2 hover:bg-muted transition-colors"
+                  >
+                    {renderSearchItem(item)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
   );
 };
 
 export default CustomSearchControl;
+

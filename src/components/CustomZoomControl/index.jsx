@@ -17,14 +17,14 @@ const CustomZoomControl = () => {
 
   return (
     <CustomControl position="bottomleft">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 touch-manipulation">
         <ThemeToggle />
         <LanguageToggle />
         <div className="flex flex-col rounded-md shadow-xl/20">
           <Button 
             size="icon" 
             onClick={zoomIn}
-            className="rounded-b-none text-lg w-full "
+            className="rounded-b-none text-lg w-full"
           >
             +
           </Button>
