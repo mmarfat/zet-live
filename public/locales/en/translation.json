@@ -6,5 +6,6 @@
     "previousSearches": "Previous searches",
     "searchResults": "Search results"
   },
-  "inactiveapp": "The app is inactive. Please interact with the page to resume updates."
+  "inactiveapp": "The app is inactive. Please interact with the page to resume updates.",
+  "datasource": "Data source:"
 }

@@ -6,5 +6,6 @@
     "previousSearches": "Prethodna pretraživanja",
     "searchResults": "Rezultati pretrage"
   },
-  "inactiveapp": "Aplikacija je neaktivna. Interaktirajte sa stranicom kako bi nastavili primati nove informacije."
+  "inactiveapp": "Aplikacija je neaktivna. Interaktirajte sa stranicom kako bi nastavili primati nove informacije.",
+  "datasource": "Izvor podataka:"
 }

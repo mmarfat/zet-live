@@ -13,10 +13,12 @@ import CustomZoomControl from '../CustomZoomControl';
 import VehicleMarkers from './VehicleMarkers';
 import { useFileData } from '@/contexts/FileDataContext/FileDataContext';
 import FlyToVehicle from './FlyToVehicle';
+import { useTranslation } from 'react-i18next';
 
 const Map = ({ selectedVehicleId, setSelectedVehicleId }) => {
   
   const { resolvedTheme } = useTheme();
+  const { t, i18n } = useTranslation();
 
   const [center, setCenter] = useState([45.8, 15.985]);
   const [zoom, setZoom] = useState(13);
@@ -34,7 +36,7 @@ const Map = ({ selectedVehicleId, setSelectedVehicleId }) => {
 
   return (
     <MapContainer
-      key={`${resolvedTheme}-map-container`}
+      key={`${resolvedTheme}-map-container-${i18n.resolvedLanguage}`}
       center={center}
       zoom={zoom}
       scrollWheelZoom={true}
@@ -55,7 +57,7 @@ const Map = ({ selectedVehicleId, setSelectedVehicleId }) => {
       <CustomZoomControl />
       {fileData && <VehicleMarkers selectedVehicleId={selectedVehicleId} setSelectedVehicleId={setSelectedVehicleId} />}
       {fileData && <FlyToVehicle selectedVehicleId={selectedVehicleId} />}
-      <AttributionControl position="bottomright" prefix={'&copy; <a href="https://www.zet.hr/gtfs-rt-protobuf">ZET GTFS-RT</a>'} />
+      <AttributionControl position="bottomright" prefix={`${t("datasource")} &copy; <a href="https://www.zet.hr/odredbe/datoteke-u-gtfs-formatu/669">ZET GTFS</a>`}/>
     </MapContainer>
   );
 };
