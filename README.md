@@ -1,12 +1,34 @@
-# React + Vite
+<h1 align="center">
+  <img src="docs/assets/logo.png" alt="zet-live Logo" width="40%" />
+</h1>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<div align="center">
+  <a href="https://mmarfat.github.io/zet-live" target="_blank">mmarfat.github.io/zet-live</a>
+</div>
 
-Currently, two official plugins are available:
+<p align="center">
+  🚍 A lightweight web app for real-time tracking of <strong>ZET</strong> buses and trams in Zagreb. Built with <strong>Vite</strong>, <strong>React</strong>, <strong>Tailwind</strong>, and <strong>Shadcn UI</strong>.
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🌐 Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🔍 Search for ZET vehicles by line number or line name
+- 🧭 Track live locations of buses and trams in Zagreb
+- ⚡ Real-time updates via WebSocket backend
+- 🧩 Built with React, Tailwind, and Shadcn UI
+
+---
+
+## 📦 Tech Stack
+
+- ⚛️ [React](https://react.dev/)
+- ⚡ [Vite](https://vite.dev/)
+- 🎨 [Tailwind CSS](https://tailwindcss.com/)
+- 🧱 [Shadcn UI](https://ui.shadcn.com/)
+- 📦 [npm](https://www.npmjs.com/)
+- 🧩 [ZET GTFS Realtime data](https://www.zet.hr/odredbe/datoteke-u-gtfs-formatu/669)
+
+## 🚫 Contributing
+This is a personal project and not open to contributions at this time.
