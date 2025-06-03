@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { useFileData } from '@/contexts/FileDataContext/FileDataContext';
 import Fuse from 'fuse.js';
 import TypeAvatar from './TypeAvatar';
+import { FIELD_MAP } from '@/utils/fieldMap';
 
 const CustomSearchControl = ({ onSelect }) => {
   
@@ -25,21 +26,17 @@ const CustomSearchControl = ({ onSelect }) => {
   };
 
   const handleSearchSelect = (item) => {
-    setSearchValue(`${item?.vehicle?.routeLongName ?? ''}, ${item?.tripUpdate?.trip?.routeId ?? ''}`);
+    setSearchValue(`${item?.[FIELD_MAP.routeLongName] ?? ''}, ${item?.[FIELD_MAP.routeId] ?? ''}`);
     setIsOpen(false);
-    onSelect(item.id);
+    onSelect(item?.[FIELD_MAP.id]);
   }
   
   // Utils
   const fuse = useMemo(() => {
     if (!fileData) return null;
 
-    const filteredEntries = fileData.filter(
-      (entry) => entry?.vehicle?.position && entry?.tripUpdate?.trip?.routeId
-    );
-
-    return new Fuse(filteredEntries, {
-      keys: ['tripUpdate.trip.routeId', 'vehicle.routeLongName'],
+    return new Fuse(fileData, {
+      keys: [FIELD_MAP.routeId, FIELD_MAP.routeLongName],
       threshold: 1,
       ignoreLocation: true
     });
@@ -55,10 +52,10 @@ const CustomSearchControl = ({ onSelect }) => {
 
   const renderSearchItem = (item) => (
     <div className="flex items-center gap-3">
-      <TypeAvatar type={item?.vehicle?.routeType} />
+      <TypeAvatar type={item?.[FIELD_MAP.routeType]} />
       <div>
-        <div className="font-medium">{item?.tripUpdate?.trip?.routeId || item?.vehicle?.trip?.routeId}</div>
-        <div className="text-sm text-muted-foreground">{item?.vehicle?.routeLongName}</div>
+        <div className="font-medium">{item?.[FIELD_MAP.routeId]}</div>
+        <div className="text-sm text-muted-foreground">{item?.[FIELD_MAP.routeLongName]}</div>
       </div>
     </div>
   )
@@ -95,7 +92,7 @@ const CustomSearchControl = ({ onSelect }) => {
               <div className="overflow-y-auto">
                 {searchResults.map((item) => (
                   <button
-                    key={item?.id}
+                    key={item?.[FIELD_MAP.id]}
                     onMouseDown={() => handleSearchSelect(item)}
                     className="w-full text-left px-3 py-2 hover:bg-muted transition-colors"
                   >

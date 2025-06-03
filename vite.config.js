@@ -12,13 +12,4 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    proxy: {
-      "/gtfs": {
-        target: "https://www.zet.hr/gtfs-rt-protobuf",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/gtfs/, '')
-      }
-    }
-  }
 })

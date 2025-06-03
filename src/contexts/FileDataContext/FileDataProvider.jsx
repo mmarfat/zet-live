@@ -1,13 +1,11 @@
-import { useEffect, useState, useRef } from "react";
-import { mergeData } from "@/utils/merge-utils";
-import { fetchGTFS } from "@/utils/gtfs-fetch";
-import { FileDataContext } from "./FileDataContext";
-import { useTranslation } from "react-i18next";
+import { useEffect, useState, useRef } from 'react';
+import { FileDataContext } from './FileDataContext';
+import { useTranslation } from 'react-i18next';
 
 const INACTIVITY_LIMIT = 60000;
 
 const FileDataProvider = ({ children }) => {
-  const [fileData, setFileData] = useState(null);
+  const [fileData, setFileData] = useState([]);
   const [isInactive, setIsInactive] = useState(false);
 
   const lastActiveRef = useRef(Date.now());
@@ -16,20 +14,21 @@ const FileDataProvider = ({ children }) => {
 
   const { t } = useTranslation();
 
+
   useEffect(() => {
     const updateActivity = () => {
       lastActiveRef.current = Date.now();
       if (isInactive) setIsInactive(false);
     };
 
-    const events = ["mousemove", "keydown", "scroll", "pointerdown", "pointermove"];
-
+    const events = ['mousemove', 'keydown', 'scroll', 'pointerdown', 'pointermove'];
     events.forEach((event) => window.addEventListener(event, updateActivity));
 
     return () => {
       events.forEach((event) => window.removeEventListener(event, updateActivity));
     };
   }, [isInactive]);
+
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -40,43 +39,54 @@ const FileDataProvider = ({ children }) => {
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [isInactive]);
+
 
   useEffect(() => {
     isMountedRef.current = true;
 
-    const checkActivity = () => {
-      if (!isMountedRef.current) return;
+    if (isInactive) return;
 
-      const now = Date.now();
-      const inactiveTime = now - lastActiveRef.current;
+    const socketUrl = `wss://zet-live.xyz`
+    const socket = new WebSocket(socketUrl);
 
-      if (inactiveTime >= INACTIVITY_LIMIT && !isInactive) {
-        setIsInactive(true);
-      }
+    socket.onopen = () => {
+      console.log('WebSocket connected');
+    };
 
-      if (inactiveTime < INACTIVITY_LIMIT && isTabVisibleRef.current) {
-        fetchGTFS().then(feed => {
-          if (feed && isMountedRef.current) {
-            mergeData(feed.entity).then(merged => {
-              setFileData(merged);
-            });
-          }
-        });
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (isMountedRef.current) {
+          setFileData(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error('Invalid JSON from WebSocket:', err);
       }
     };
 
-    checkActivity();
-    const intervalId = setInterval(checkActivity, 20000);
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    socket.onclose = (event) => {
+      console.log(`WebSocket closed: ${event.reason}`);
+      if (!isInactive) {
+        setTimeout(() => {
+          if (isMountedRef.current && !isInactive) {
+            setFileData((prev) => prev);
+          }
+        }, 10000);
+      }
+    };
 
     return () => {
       isMountedRef.current = false;
-      clearInterval(intervalId);
+      socket.close();
     };
   }, [isInactive]);
 
@@ -84,20 +94,22 @@ const FileDataProvider = ({ children }) => {
     <FileDataContext.Provider value={fileData}>
       {children}
       {isInactive && (
-        <div style={{
-          position: "fixed",
-          bottom: 20,
-          left: "50%",
-          transform: "translateX(-50%)",
-          backgroundColor: "rgba(255, 69, 0, 0.9)",
-          color: "white",
-          padding: "10px 20px",
-          borderRadius: 8,
-          zIndex: 10000,
-          fontWeight: "bold",
-          pointerEvents: "none"
-        }}>
-          {t("inactiveapp")}
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'rgba(255, 69, 0, 0.9)',
+            color: 'white',
+            padding: '10px 20px',
+            borderRadius: 8,
+            zIndex: 10000,
+            fontWeight: 'bold',
+            pointerEvents: 'none',
+          }}
+        >
+          {t('inactiveapp')}
         </div>
       )}
     </FileDataContext.Provider>
