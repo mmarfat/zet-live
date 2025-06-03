@@ -49,7 +49,26 @@ const FileDataProvider = ({ children }) => {
   useEffect(() => {
     isMountedRef.current = true;
 
-    if (isInactive) return;
+    const checkActivity = () => {
+      if (!isMountedRef.current) return;
+
+      const now = Date.now();
+      const inactiveTime = now - lastActiveRef.current;
+
+      if (inactiveTime >= INACTIVITY_LIMIT && !isInactive) {
+        setIsInactive(true);
+      }
+    };
+
+    checkActivity();
+    const intervalId = setInterval(checkActivity, 10000);
+
+    if (isInactive) {
+      return () => {
+        clearInterval(intervalId);
+        isMountedRef.current = false;
+      };
+    }
 
     const socketUrl = `wss://zet-live.xyz`
     const socket = new WebSocket(socketUrl);
@@ -86,6 +105,7 @@ const FileDataProvider = ({ children }) => {
 
     return () => {
       isMountedRef.current = false;
+      clearInterval(intervalId);
       socket.close();
     };
   }, [isInactive]);
@@ -94,21 +114,7 @@ const FileDataProvider = ({ children }) => {
     <FileDataContext.Provider value={fileData}>
       {children}
       {isInactive && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: 'rgba(255, 69, 0, 0.9)',
-            color: 'white',
-            padding: '10px 20px',
-            borderRadius: 8,
-            zIndex: 10000,
-            fontWeight: 'bold',
-            pointerEvents: 'none',
-          }}
-        >
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 transform bg-orange-600/90 text-white px-5 py-2.5 rounded z-[10000] font-bold pointer-events-none">
           {t('inactiveapp')}
         </div>
       )}
